@@ -1,5 +1,5 @@
 const { stdio, ext } = require("./util")
-ext.Math()
+for (const n in ext) ext[n]()
 
 const loop = new (require("./cli"))
-loop.run({ io: stdio() })
+loop.run({ io: stdio(loop), inject_result: true })

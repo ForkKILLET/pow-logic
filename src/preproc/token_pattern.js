@@ -30,7 +30,7 @@ module.exports = {
 					expect: {
 						if_end: true,
 						then: {
-							stt: {
+								stt: {
 								ty: "ident",
 							}
 						}
@@ -92,6 +92,27 @@ module.exports = {
 			}
 		]
 	),
+	...expand(
+		[ "⊤", "⊥" ],
+		v => [
+			v,
+			{
+				if: {
+					ty: "ident"
+				},
+				then: {
+					stt: {
+						ty: "ident"
+					}
+				},
+				else: {
+					stt: {
+						ty: "truth"
+					}
+				}
+			}
+		]
+	),
 	"&": {
 		stt: {
 			ty: "&"
@@ -119,15 +140,15 @@ module.exports = {
 		else: {
 			stt: {
 				ty: "ident"
-			}
-		},
-		expect: {
-			if: {
-				ty: "type"
 			},
-			then: {
-				stt: {
+			expect: {
+				if: {
 					ty: "type"
+				},
+				then: {
+					stt: {
+						ty: "type"
+					}
 				}
 			}
 		}

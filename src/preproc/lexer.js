@@ -42,7 +42,7 @@ module.exports = code => {
 			const mod = test(lst_pat.expect, pat.stt)
 			if (mod) {
 				stt = { ...stt, ...mod.stt }
-				dif = stt.ty !== mod.stt.ty
+				dif = stt.ty !== pat.stt.ty
 			}
 		}
 
