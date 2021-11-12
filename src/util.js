@@ -60,7 +60,7 @@ const ext = {
 			const q = 2 ** q2 * 5 ** q5
 			if (i[0] === "-") p = - p
 			p += i * q
-			return { p, q }
+			return [ p, q ]
 		},
 
 		gcd: (x, y) => y ? Math.gcd(y, x % y) : x,

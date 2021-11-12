@@ -50,14 +50,31 @@ module.exports = {
 			ty: "number"
 		},
 		if_not: {
-			dotted: true
+			demi: true,
+			frac: true
 		},
 		then: {
 			stt: {
 				ty: "number",
-				dotted: true,
+				demi: true
 			}
 		}
+	},
+	"/": {
+		if: {
+			ty: "number"
+		},
+		if_not: {
+			demi: true,
+			frac: true
+		},
+		then: {
+			stt: {
+				ty: "number",
+				frac: true
+			}
+		}
+		
 	},
 	...expand(
 		Array(10).fill(),

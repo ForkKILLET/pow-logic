@@ -36,7 +36,7 @@ module.exports = class Loop {
 	global = {
 		...BuiltIn,
 		[util.inspect.custom] () {
-			return "Loop.global"
+			return chalk.cyan("[Loop.global]")
 		}
 	}
 	config = {
@@ -52,7 +52,7 @@ module.exports = class Loop {
 	}
 
 	[util.inspect.custom] () {
-		return "Loop" + chalk.yellow("#" + this.time_strap)
+		return chalk.cyan("[Loop: ") + chalk.yellow("#" + this.time_strap) + chalk.cyan("]")
 	}
 
 	async completer(ln, cb) {

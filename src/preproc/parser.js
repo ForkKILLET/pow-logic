@@ -63,13 +63,15 @@ module.exports = class Parser {
 			.and(Assert(this.#pos === this.#tks.length, msg))
 	}
 
-	Demical() {
-		const [ t, s ] = this.#must(t => t.ty === "number", "<Demical> must be a [number]!")
+	NumQ() {
+		const [ t, s ] = this.#must(t => t.ty === "number", "<NumQ> must be a [number]!")
+		let p, q
+		if (t.demi) [ p, q ] = Math.parseFraction(...s.split("."))
+		else if (t.frac) [ p, q ] = s.split("/") 
+		else p = + s, q = 1
 		return {
 			ty: "NumQ",
-			...t.dotted
-				? Math.parseFraction(...s.split("."))
-				: { p: + s, q: 1 }
+			p, q
 		}
 	}
 
@@ -77,7 +79,7 @@ module.exports = class Parser {
 		const ltd = !! this.#may(t => t.ty === "[")
 
 		let expr = this.test_all("unexpected token", [
-			"Demical", "Fun", "Ident", "Set", "Truth"
+			"NumQ", "Fun", "Ident", "Set", "Truth"
 		])
 
 		if (expr.is_ok()) {
