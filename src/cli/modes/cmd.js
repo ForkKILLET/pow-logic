@@ -39,8 +39,7 @@ const Cmds = {
 			catch (err) {
 				loop.io.e.writeln("%s", err)
 			}
-		},
-		complete: null
+		}
 	},
 	"eval": "~",
 
@@ -50,13 +49,13 @@ const Cmds = {
 				const txt = await readFile(
 					file ?? (process.env.HOME ?? process.env.USERPROFILE) + "/.plrc", { encoding: "utf8" }
 				)
-				txt.split("\n").forEach(ln => loop.process(ln))
+				for (const ln of txt.split("\n")) await loop.process(ln)
 			}
 			catch (err) {
 				if (file) loop.io.e.writeln(err.message)
 			}
 		},
-		complete: async (_, arg) => [ await more_fs.complete_path(arg), arg ]
+		complete: async (_, arg) => await more_fs.complete_path(arg)
 	},
 	"src": "."
 }

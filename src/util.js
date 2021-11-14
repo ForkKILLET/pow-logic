@@ -169,24 +169,24 @@ const assert = {
 
 const more_fs = {
 	complete_path: async ln => {
-		// TODO: This doesn't support relative path, use `repl.js#1234` in nodejs std instead.
-		// From: <https://stackoverflow.com/questions/16068607/how-to-suggest-files-with-tab-completion-using-readline>
-		let { dir, base } = path.parse(ln)
-		return await fs.readdir(dir || ".", { withFileTypes: true })
-			.then(dirEntries => {
-				if (dirEntries.some(entry => entry.name === base && entry.isDirectory())) {
-					dir = dir === "/" || dir === path.sep ? `${dir}${base}` : `${dir}/${base}`
-					return fs.readdir(dir, { withFileTypes: true })
-				}
-				return dirEntries.filter(entry => entry.name.startsWith(base))
-			})
-			.then(matchedEntries => {
-				if (dir === path.sep || dir === "/") dir = ""
-				return matchedEntries
-					.filter(entry => entry.isFile() || entry.isDirectory())
-					.map(entry => `${dir}/${entry.name}${entry.isDirectory() && ! entry.name.endsWith("/") ? "/" : ""}`)
-			})
-			.catch(() => [])
+		if (ln === ".") ln = "./"
+		else if (ln === "..") ln = "../"
+
+		let abs_path
+		if (ln[0] !== "/") {
+			if (! /^\.{1,2}\//.test(ln)) ln = "./" + ln
+			abs_path = path.resolve(ln + "#").slice(0, -1)
+		}
+		else abs_path = ln
+
+		const [, abs_dir, nxt ] = abs_path.match(/(.*\/)(.*)/)
+		const [, rel_dir ] = ln.match(/(.*\/)/)
+		const children = await fs.readdir(abs_dir, { withFileTypes: true }).catch(() => [])
+
+		const completions = children
+			.filter(child => child.name.startsWith(nxt))
+			.map(child => rel_dir + child.name)
+		return [ completions, ln ]
 	}
 }
 
