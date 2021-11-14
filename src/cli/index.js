@@ -42,9 +42,11 @@ module.exports = class Loop {
 	config = {
 		js_code: false,
 		js_trace: false,
+
 		d_tk: false,
 		d_ast: false,
-		d_sci: false
+		d_sci: false,
+		d_truth: [ "⊤", "⊥" ]
 	}
 
 	constructor() {
@@ -52,15 +54,15 @@ module.exports = class Loop {
 	}
 
 	[util.inspect.custom] () {
-		return chalk.cyan("[Loop: ") + chalk.yellow("#" + this.time_strap) + chalk.cyan("]")
+		return chalk.cyan("[Loop: " + chalk.yellow("#" + this.time_strap) + "]")
 	}
 
 	async completer(ln, cb) {
 		ln = ln.trimStart()
 
 		cb(null, ln[0] === "!"
-			? await Modes.cmd.complete(ln.slice(1), this)
-			: await this.mode.complete?.(ln, this) ?? []
+			? await Modes.cmd.complete(this, ln.slice(1))
+			: await this.mode.complete?.(this, ln) ?? []
 		)
 	}
 
@@ -68,8 +70,8 @@ module.exports = class Loop {
 		if (! (ln = ln.trim())) return
 
 		ln[0] === "!"
-			? await Modes.cmd.handle(ln.slice(1), this)
-			: await this.mode.handle(ln, this)
+			? await Modes.cmd.handle(this, ln.slice(1))
+			: await this.mode.handle(this, ln)
 	}
 
 	async run({ io, inject_result }) {

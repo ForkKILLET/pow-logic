@@ -1,9 +1,9 @@
 const Parser = require("../../preproc/parser")
 
-const handle= (cmd, loop) => {
+const handle= (loop, cmd) => {
 	let [ ident, code ] = cmd.split2("=")
 
-	ident = new Parser(loop, ident).test_end("unexcepted structure after <Ident> to bind", "Ident", true)
+	ident = new Parser(loop, ident).test_end("unexcepted structure after <Ident> to bind", "Ident", { dead: true })
 	if (ident.is_err()) return ident.log()
 	ident = ident.catch()
 

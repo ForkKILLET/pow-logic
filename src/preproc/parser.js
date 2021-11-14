@@ -5,11 +5,14 @@ const { result: { Err, Ok, Assert } } = require("../util")
 
 module.exports = class Parser {
 	constructor(loop, code) {
-		this.loop = loop
+		this.loop = loop ?? {
+			config: {},
+			global: {}
+		}
 		this.#tks = lexer(code + "\n")
-		this.#scope = new Scope(loop)
+		this.#scope = new Scope(this.loop)
 
-		if (this.loop.config.d_tk) loop.io.o.writeln("Tokens: %o", this.#tks)
+		if (this.loop.config.d_tk) this.loop.io.o.writeln("Tokens: %o", this.#tks)
 	}
 
 	#tks
@@ -67,7 +70,7 @@ module.exports = class Parser {
 		const [ t, s ] = this.#must(t => t.ty === "number", "<NumQ> must be a [number]!")
 		let p, q
 		if (t.demi) [ p, q ] = Math.parseFraction(...s.split("."))
-		else if (t.frac) [ p, q ] = s.split("/") 
+		else if (t.frac) [ p, q ] = s.split("/").map(Number)
 		else p = + s, q = 1
 		return {
 			ty: "NumQ",
@@ -98,7 +101,7 @@ module.exports = class Parser {
 		return expr
 	}
 
-	Fun() {
+	Fun({ empty } = {}) {
 		const o = {
 			ty: "Fun",
 			pat: [
@@ -113,10 +116,12 @@ module.exports = class Parser {
 			if (p.param.length) this.#must(t => t.ty === ",", "<Fun> parameters must be separated by [,].")
 
 			p.param.push({
-				ty: this.test("Type").try("<Fun> parameter must start with <Type>.").id,
-				name: this.test("Ident", true).try("<Fun> parameter must end with <Ident>.").id
+				ty: this.test("Type", { dead: empty }).try("<Fun> parameter must start with <Type>.").id,
+				name: this.test("Ident", { dead: true }).try("<Fun> parameter must end with <Ident>.").id
 			})
 		}
+
+		if (empty) return o
 
 		p.expr = this.#scope.with(
 			Object.fromEntries(
@@ -144,7 +149,7 @@ module.exports = class Parser {
 			arg: []
 		}
 
-		if (! [ "Fun", "FunCal" ].includes(expr.ty)) throw `<FunCal> callee must be after a possible <Fun>!`
+		if (expr.ty !== "Fun" && expr.pat_ty !== "Fun") throw `<FunCal> callee must be after <Fun>!`
 
 		this.#must(t => t.ty === "(", "<FunCal> argument list must starts with [(]!")
 		while (true) {
@@ -160,8 +165,8 @@ module.exports = class Parser {
 		return o
 	}
 
-	Ident(dead) {
-		const [ , s ] = this.#must(t => t.ty === "ident", "<Ident> must be [ident]!")
+	Ident({ dead } = {}) {
+		const [, s ] = this.#must(t => t.ty === "ident", "<Ident> must be [ident]!")
 		if (dead) return {
 			ty: "Ident",
 			id: s
@@ -191,10 +196,10 @@ module.exports = class Parser {
 		}
 	}
 
-	Type() {
+	Type({ dead } = {}) {
 		const [ , s ] = this.#must(t => t.ty === "type", "<Type> must be [type]!")
 		const id = s.slice(0, -1)
-		if (this.#scope.search(id)?.ty !== "Type") throw `unbound <Type> ${s}.`
+		if (! dead && this.#scope.search(id)?.ty !== "Type") throw `unbound <Type> ${s}.`
 		return {
 			ty: "Type",
 			id

@@ -72,6 +72,14 @@ const ext = {
 			const i = this.indexOf(s)
 			return i < 0 ? [ this ] : [ this.slice(0, i), this.slice(i + s.length) ]
 		}
+	}),
+
+	Array: () => Object.assign(Array.prototype, {
+		repeat(n) {
+			let ret = []
+			while (n --) ret = ret.concat(this)
+			return ret
+		}
 	})
 }
 
@@ -130,7 +138,16 @@ const result = {
 	Ok: (v) =>
 		new result.Result(true, v),
 	Assert: (t, msg) =>
-		new result.Result(t, t ? null : msg)
+		new result.Result(t, t ? null : msg),
+
+	catch_fun: (f, map) => (...a) => {
+		try {
+			return f(...a)
+		}
+		catch (err) {
+			return result.Err(typeof map === "function" ? map(err) : err)
+		}
+	}
 }
 
 const assert = {
@@ -152,6 +169,7 @@ const assert = {
 
 const more_fs = {
 	complete_path: async ln => {
+		// TODO: This doesn't support relative path, use `repl.js#1234` in nodejs std instead.
 		// From: <https://stackoverflow.com/questions/16068607/how-to-suggest-files-with-tab-completion-using-readline>
 		let { dir, base } = path.parse(ln)
 		return await fs.readdir(dir || ".", { withFileTypes: true })

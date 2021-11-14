@@ -64,13 +64,13 @@ for (const k in Cmds)
 	if (typeof Cmds[k] === "string")
 		Cmds[k] = Cmds[Cmds[k]]
 
-const handle = async (cmd, loop) => {
+const handle = async (loop, cmd) => {
 	const [ name, arg ] = cmd.split2(" ")
 	if (name in Cmds) await Cmds[name].handle(loop, arg, name)
 	else loop.io.e.writeln("unknown command.")
 }
 
-const complete = async (ln, loop) => {
+const complete = async (loop, ln) => {
 	const [ name, arg ] = ln.split2(" ")
 	return arg === undefined
 		? [
