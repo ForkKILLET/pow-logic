@@ -79,7 +79,7 @@ const BuiltIn = {
 		]
 	]),
 
-	"*": JsFun("*", [
+	"/": JsFun("/", [
 		[
 			"(NumQ:l, NumQ:r)", "NumQ",
 			(l, r) => {

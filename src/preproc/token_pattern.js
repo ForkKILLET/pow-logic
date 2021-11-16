@@ -74,7 +74,6 @@ module.exports = {
 				frac: true
 			}
 		}
-		
 	},
 	...expand(
 		Array(10).fill(),
