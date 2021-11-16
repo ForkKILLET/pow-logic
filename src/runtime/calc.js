@@ -35,6 +35,9 @@ const calc = (loop, node, up = null, stack = []) => {
 		})
 		return Ok({ ...node, elem })
 
+	case "Ident":
+		return Ok(node.cache_v ??= calc(loop, node.v).try())
+
 	case "Arg":
 		switch (up.ty) {
 		case "FunCal":

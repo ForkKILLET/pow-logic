@@ -30,7 +30,7 @@ module.exports = {
 					expect: {
 						if_end: true,
 						then: {
-								stt: {
+							stt: {
 								ty: "ident",
 							}
 						}

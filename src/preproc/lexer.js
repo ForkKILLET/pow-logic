@@ -19,7 +19,7 @@ module.exports = code => {
 					! pat.if_not ||
 					Object.entries(pat.if_not).every(([ k, v ]) => stt?.[k] !== v)
 				)
-			) ? pat.then : pat.else)
+			) ? pat.then : pat.else, stt, dft)
 		}
 
 		else return pat

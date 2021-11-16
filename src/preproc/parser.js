@@ -136,20 +136,26 @@ module.exports = class Parser {
 		return o
 	}
 
-	#pat_ty(expr) {
-		if (expr.ty !== "FunCal") return expr.ty
-		const pat = expr.callee.pat[expr.pat_idx]
-		return pat.ret_ty ?? this.#pat_ty(pat.expr)
+	#expr_ty(expr, do_pat) {
+		switch (expr.ty) {
+		case "FunCal":
+			if (! do_pat) return expr.pat_ty
+			const pat = expr.callee.pat[expr.pat_idx]
+			return pat.ret_ty ?? this.#expr_ty(pat.expr)
+		case "Ident": return this.#expr_ty(expr.cache_v ?? expr.v)
+		case "Arg": return expr.arg_ty
+		default: return expr.ty
+		}
 	}
 
 	FunCal(expr) {
+		if (this.#expr_ty(expr) !== "Fun") throw `<FunCal> callee must be after <Fun>!`
+
 		const o = {
 			ty: "FunCal",
-			callee: expr,
+			callee: expr, // FIXME
 			arg: []
 		}
-
-		if (expr.ty !== "Fun" && expr.pat_ty !== "Fun") throw `<FunCal> callee must be after <Fun>!`
 
 		this.#must(t => t.ty === "(", "<FunCal> argument list must starts with [(]!")
 		while (true) {
@@ -161,17 +167,20 @@ module.exports = class Parser {
 		const i = check_pargam(o.callee.pat, o.arg)
 		if (i < 0) throw "mismatched arguments."
 		o.pat_idx = i
-		o.pat_ty = this.#pat_ty(o)
+		o.pat_ty = this.#expr_ty(o, true)
 		return o
 	}
 
 	Ident({ dead } = {}) {
 		const [, s ] = this.#must(t => t.ty === "ident", "<Ident> must be [ident]!")
-		if (dead) return {
+		const v = this.#scope.search(s) ?? (() => {
+			if (! dead) throw `unbound <Ident> ${s}.`
+		})()
+		return dead ? {
 			ty: "Ident",
-			id: s
-		}
-		return this.#scope.search(s) ?? (() => { throw `unbound <Ident> ${s}.` })()
+			id: s,
+			v
+		} : v
 	}
 
 	Set() {

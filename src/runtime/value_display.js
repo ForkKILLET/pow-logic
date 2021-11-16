@@ -28,6 +28,7 @@ const raw_ser = (loop, node) => {
 	case "FunCal":
 		return (node.callee.name ?? chalk.cyan("<f>"))
 			+ "(" + node.arg.map(arg => ser(loop, arg, false)).join(", ") + ")"
+
 	case "NumQ":
 		return node.p + (node.q === 1 ? "" : "/" + node.q)
 	case "Set":

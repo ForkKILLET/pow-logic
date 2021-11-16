@@ -3,7 +3,7 @@ const Parser = require("../../preproc/parser")
 const handle= (loop, cmd) => {
 	let [ ident, code ] = cmd.split2("=")
 
-	ident = new Parser(loop, ident).test_end("unexcepted structure after <Ident> to bind", "Ident", { dead: true })
+	ident = new Parser(loop, ident).test_end("unexcepted tokens after <Ident> to bind", "Ident", { dead: true })
 	if (ident.is_err()) return ident.log()
 	ident = ident.catch()
 
@@ -11,15 +11,16 @@ const handle= (loop, cmd) => {
 
 	code = new Parser(loop, code).Expr()
 	if (code.is_err()) return code.log()
-	code = code.catch()
+	const expr = code.catch()
 
-	if (code.ty === "Fun") code.name ??= ident.id
+	if (expr.ty === "Fun") expr.name ??= ident.id
 
 	if (loop.global[ident.id]) {
-		if (ident.id[0] !== "$") return loop.io.e.writeln("rebound of var")
+		return loop.io.e.writeln("rebound of var")
 	}
 
-	loop.global[ident.id] = code
+	loop.global[ident.id] = ident
+	ident.v = expr
 }
 
 module.exports = { handle }
