@@ -62,7 +62,10 @@ const ext = {
 			p += i * q
 			return [ p, q ]
 		},
-
+		simplifyFraction: (p, q) => {
+			const g = Math.gcd(p, q)
+			return [ p / g, q / g ]
+		},
 		gcd: (x, y) => y ? Math.gcd(y, x % y) : x,
 		lcm: (x, y, g) => x * y / (g ?? Math.gcd(x, y))
 	}),

@@ -28,9 +28,11 @@ const BuiltIn = {
 			"(NumQ:l, NumQ:r)", "NumQ",
 			(l, r) => {
 				const g = Math.gcd(l.q, r.q)
-				const p = (l.p * r.q + r.p * l.q) / g, q = Math.lcm(l.q, r.q, g)
-				const g_ = Math.gcd(p, q)
-				return { ty: "NumQ", p: p / g_, q: q / g_ }
+				const [ p, q ] = Math.simplifyFraction(
+					(l.p * r.q + r.p * l.q) / g,
+					q = Math.lcm(l.q, r.q, g)
+				)
+				return { ty: "NumQ", p, q }
 			}
 		],
 		[
@@ -53,7 +55,7 @@ const BuiltIn = {
 				return {
 					ty: "NumQ",
 					p: - x.p,
-					q:x.q
+					q: x.q
 				}
 			}
 		],
@@ -61,9 +63,11 @@ const BuiltIn = {
 			"(NumQ:l, NumQ:r)", "NumQ",
 			(l, r) => {
 				const g = Math.gcd(l.q, r.q)
-				const p = (l.p * r.q - r.p * l.q) / g, q = Math.lcm(l.q, r.q, g)
-				const g_ = Math.gcd(p, q)
-				return { ty: "NumQ", p: p / g_, q: q / g_ }
+				const [ p, q ] = Math.simplifyFraction(
+					(l.p * r.q - r.p * l.q) / g,
+					q = Math.lcm(l.q, r.q, g)
+				)
+				return { ty: "NumQ", p, q }
 			}
 		]
 	]),
@@ -72,9 +76,8 @@ const BuiltIn = {
 		[
 			"(NumQ:l, NumQ:r)", "NumQ",
 			(l, r) => {
-				const p = l.p * r.p, q = l.q * r.q
-				const g_ = Math.gcd(p, q)
-				return { ty: "NumQ", p: p / g_, q: q / g_ }
+				const [ p, q ] = Math.simplifyFraction(l.p * r.p, l.q * r.q)
+				return { ty: "NumQ", p, q }
 			}
 		]
 	]),
@@ -83,9 +86,8 @@ const BuiltIn = {
 		[
 			"(NumQ:l, NumQ:r)", "NumQ",
 			(l, r) => {
-				const p = l.p * r.q, q = l.q * r.p
-				const g_ = Math.gcd(p, q)
-				return { ty: "NumQ", p: p / g_, q: q / g_ }
+				const [ p, q ] = Math.simplifyFraction(l.p * r.q, l.q * r.p)
+				return { ty: "NumQ", p, q }
 			}
 		]
 	]),

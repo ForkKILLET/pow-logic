@@ -70,7 +70,7 @@ module.exports = class Parser {
 		const [ t, s ] = this.#must(t => t.ty === "number", "<NumQ> must be a [number]!")
 		let p, q
 		if (t.demi) [ p, q ] = Math.parseFraction(...s.split("."))
-		else if (t.frac) [ p, q ] = s.split("/").map(Number)
+		else if (t.frac) [ p, q ] = Math.simplifyFraction(...s.split("/").map(Number))
 		else p = + s, q = 1
 		return {
 			ty: "NumQ",
