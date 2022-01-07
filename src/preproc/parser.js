@@ -1,5 +1,6 @@
-const lexer = require("./lexer")
-const Scope = require("./scope")
+const lexer			= require("./lexer")
+const Scope			= require("./scope")
+const typeof_expr	= require("./expr_ty")
 const check_pargam = require("./pargam_check")
 const { result: { Err, Ok, Assert } } = require("../util")
 
@@ -136,24 +137,12 @@ module.exports = class Parser {
 		return o
 	}
 
-	#expr_ty(expr, do_pat) {
-		switch (expr.ty) {
-		case "FunCal":
-			if (! do_pat) return expr.pat_ty
-			const pat = expr.callee.pat[expr.pat_idx]
-			return pat.ret_ty ?? this.#expr_ty(pat.expr)
-		case "Ident": return this.#expr_ty(expr.cache_v ?? expr.v)
-		case "Arg": return expr.arg_ty
-		default: return expr.ty
-		}
-	}
-
 	FunCal(expr) {
-		if (this.#expr_ty(expr) !== "Fun") throw `<FunCal> callee must be after <Fun>!`
+		if (typeof_expr(expr) !== "Fun") throw `<FunCal> callee must be after <Fun>!`
 
 		const o = {
 			ty: "FunCal",
-			callee: expr, // FIXME
+			callee: expr,
 			arg: []
 		}
 
@@ -164,10 +153,6 @@ module.exports = class Parser {
 			o.arg.push(this.Expr().try("unexpected token at <FunCal> argument."))
 		}
 
-		const i = check_pargam(o.callee.pat, o.arg)
-		if (i < 0) throw "mismatched arguments."
-		o.pat_idx = i
-		o.pat_ty = this.#expr_ty(o, true)
 		return o
 	}
 

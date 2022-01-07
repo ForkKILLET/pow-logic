@@ -2,18 +2,27 @@ const {
 	result: { Ok, Result, catch_fun }
 }					= require("../util")
 const check_pargam	= require("../preproc/pargam_check")
+const typeof_expr	= require("../preproc/expr_ty")
 const chalk			= require("chalk")
 
 const calc = (loop, node, up = null, stack = []) => {
 	switch (node.ty) {
 	case "FunCal":
-		const pat = calc(loop, node.callee, up).try().pat[node.pat_idx]
+		const pats = calc(loop, node.callee, up).try().pat
+		const i = check_pargam(pats, node.arg)
+		if (i < 0) throw "mismatched arguments."
+		node.cache_pat = pats[i]
+		let pat_ty = typeof_expr(pat.expr, true)
+
 		const arg = node.arg.map(arg => calc(loop, arg, up, stack).try())
 		if (typeof pat.expr === "function") {
 			const ret = pat.expr(...arg)
 			return ret instanceof Result ? ret : Ok(ret)
 		}
-		else return calc(loop, pat.expr, { ...node, arg }, [ ...stack, arg ])
+		else {
+			console.log(pat)
+			return calc(loop, pat.expr, { ...node, arg }, [ ...stack, arg ])
+		}
 
 	case "Set":
 		const elem = node.elem.map(elem => calc(loop, elem, up, stack).try())
@@ -22,12 +31,11 @@ const calc = (loop, node, up = null, stack = []) => {
 			while (++ i < elem.length) {
 				const t = elem[i]
 				if (e.ty === t.ty) {
-					const pat_idx = check_pargam(eq.pat, [ { ty: e.ty } ].repeat(2))
-					if (pat_idx === -1) throw "difference of <Set> elements must be able to be judged by \"=\"."
+					const i = check_pargam(eq.pat, [ { ty: e.ty } ].repeat(2))
+					if (i < 0) throw "difference of <Set> elements must be able to be judged by \"=\"."
 					else if (calc(loop, {
 						ty: "FunCal",
 						callee: eq,
-						pat_idx,
 						arg: [ e, t ]
 					}).try().v) throw "<Set> elements must be different."
 				}
@@ -41,7 +49,7 @@ const calc = (loop, node, up = null, stack = []) => {
 	case "Arg":
 		switch (up.ty) {
 		case "FunCal":
-			const pat = up.callee.pat[up.pat_idx]
+			const pat = up.callee.cache_pat
 			const [ arg, k ] = pat.scope.search_idx(node.name)
 			if (k === stack.length - 1) return Ok(stack[k][arg.idx])
 			return Ok(node)
