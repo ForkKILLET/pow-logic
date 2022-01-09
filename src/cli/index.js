@@ -2,7 +2,7 @@ const { result }	= require("../util")
 const { Cmds }		= require("./modes/cmd")
 const BuiltIn		= require("../runtime/built_in")
 const chalk			= require("chalk")
-const util			= require("util")
+const { inspect }	= require("util")
 
 const Modes = Object.freeze([
 	{
@@ -35,7 +35,7 @@ const Modes = Object.freeze([
 module.exports = class Loop {
 	global = {
 		...BuiltIn,
-		[util.inspect.custom] () {
+		[ inspect.custom ] () {
 			return chalk.cyan("[Loop.global]")
 		}
 	}
@@ -45,6 +45,7 @@ module.exports = class Loop {
 
 		d_tk: false,
 		d_ast: false,
+		d_ast_sc: false,
 		d_sci: false,
 		d_truth: [ "⊤", "⊥" ]
 	}
@@ -53,7 +54,7 @@ module.exports = class Loop {
 		this.time_strap = Date.now()
 	}
 
-	[util.inspect.custom] () {
+	[ inspect.custom ] () {
 		return chalk.cyan("[Loop: " + chalk.yellow("#" + this.time_strap) + "]")
 	}
 

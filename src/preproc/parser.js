@@ -1,7 +1,5 @@
 const lexer			= require("./lexer")
 const Scope			= require("./scope")
-const typeof_expr	= require("./expr_ty")
-const check_pargam = require("./pargam_check")
 const { result: { Err, Ok, Assert } } = require("../util")
 
 module.exports = class Parser {
@@ -138,8 +136,6 @@ module.exports = class Parser {
 	}
 
 	FunCal(expr) {
-		if (typeof_expr(expr) !== "Fun") throw `<FunCal> callee must be after <Fun>!`
-
 		const o = {
 			ty: "FunCal",
 			callee: expr,

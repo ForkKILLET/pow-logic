@@ -1,4 +1,4 @@
-const ty = (expr, do_pat) => {
+const ty = (expr) => {
 	switch (expr.ty) {
 	case "FunCal":
 		if (! do_pat) return expr.pat_ty

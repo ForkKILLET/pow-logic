@@ -93,6 +93,17 @@ const result = {
 				super(msg)
 				Object.assign(this, data)
 			}
+
+			[ util.inspect.custom ] () {
+				const s = this.original_stack
+				delete this.original_stack
+				let e = util.inspect(this, { customInspect: false })
+				if (s) {
+					e += chalk.yellow([ "", "Original Error:", ...s.split("\n").slice(1) ].join("\n"))
+					this.original_stack = s
+				}
+				return e
+			}
 		}
 
 		#t; #v
@@ -148,7 +159,9 @@ const result = {
 			return f(...a)
 		}
 		catch (err) {
-			return result.Err(typeof map === "function" ? map(err) : err)
+			return result.Err(typeof map === "function" ? map(err) : err, {
+				original_stack: err.stack
+			})
 		}
 	}
 }

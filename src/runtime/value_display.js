@@ -30,7 +30,7 @@ const raw_ser = (loop, node) => {
 			+ "(" + node.arg.map(arg => ser(loop, arg, false)).join(", ") + ")"
 
 	case "NumQ":
-		return node.p + (node.q === 1 ? "" : "/" + node.q)
+		return chalk.green(node.p + (node.q === 1 ? "" : "/" + node.q))
 	case "Set":
 		return "{ " + node.elem.map(node => ser(loop, node, false)).join(", ") + " }"
 	case "Truth":

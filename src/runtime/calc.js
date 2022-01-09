@@ -2,25 +2,24 @@ const {
 	result: { Ok, Result, catch_fun }
 }					= require("../util")
 const check_pargam	= require("../preproc/pargam_check")
-const typeof_expr	= require("../preproc/expr_ty")
 const chalk			= require("chalk")
 
 const calc = (loop, node, up = null, stack = []) => {
 	switch (node.ty) {
 	case "FunCal":
-		const pats = calc(loop, node.callee, up).try().pat
-		const i = check_pargam(pats, node.arg)
-		if (i < 0) throw "mismatched arguments."
-		node.cache_pat = pats[i]
-		let pat_ty = typeof_expr(pat.expr, true)
+		const callee = calc(loop, node.callee, up).try()
+		if (callee.ty !== "Fun") throw "uncallable <FunCal> callee."
 
 		const arg = node.arg.map(arg => calc(loop, arg, up, stack).try())
+		const i = check_pargam(callee.pat, arg)
+		if (i < 0) throw "mismatched <FunCal> arguments."
+		const pat = node.callee.cache_pat = callee.pat[i]
+
 		if (typeof pat.expr === "function") {
 			const ret = pat.expr(...arg)
 			return ret instanceof Result ? ret : Ok(ret)
 		}
 		else {
-			console.log(pat)
 			return calc(loop, pat.expr, { ...node, arg }, [ ...stack, arg ])
 		}
 
